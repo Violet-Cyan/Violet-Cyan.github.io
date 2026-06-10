@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>星渊手札 · Violet 的个人星图</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@300;400;600&family=Cormorant+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- 若大陆访问字体加载缓慢,可将下行的 fonts.googleapis.com 换成镜像 fonts.loli.net -->
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@300;400;600&family=Cormorant+Garamond:ital@0;1&display=swap" rel="stylesheet">
 <style>
 :root{
   --abyss:#0b1026;        /* 深渊蓝 */
@@ -14,9 +16,10 @@
   --moonpale:#f0ede2;     /* 月白 */
   --mistviolet:#8b7ec8;   /* 雾紫 */
   --ember:#c25e5e;        /* 余烬红 */
-  --display:'ZCOOL XiaoWei', serif;
-  --body:'Noto Serif SC', serif;
-  --latin:'Cormorant Garamond', serif;
+  --title:'Ma Shan Zheng','ZCOOL XiaoWei','STKaiti','KaiTi','BiauKai','DFKai-SB',serif;
+  --display:'ZCOOL XiaoWei','STZhongsong','STKaiti','KaiTi','Noto Serif SC','Songti SC',serif;
+  --body:'Noto Serif SC','Songti SC','STSong','SimSun','NSimSun',serif;
+  --latin:'Cormorant Garamond','Times New Roman',serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -129,9 +132,9 @@ header{
 }
 @keyframes slowSpin{to{transform:rotate(360deg)}}
 header h1{
-  font-family:var(--display);
-  font-size:clamp(2.6rem,7vw,4.6rem);
-  letter-spacing:.45em;text-indent:.45em;
+  font-family:var(--title);
+  font-size:clamp(2.8rem,7.4vw,5rem);
+  letter-spacing:.32em;text-indent:.32em;
   color:var(--moonpale);
   text-shadow:0 0 30px rgba(232,196,107,.35);
 }
@@ -151,7 +154,7 @@ header .epigraph em{font-family:var(--latin);color:var(--starlight)}
 /* ---------- 扉页开场:标题逐字浮现 ---------- */
 header h1.split{letter-spacing:0;text-indent:0}
 header h1 .ch{
-  display:inline-block;margin-right:.45em;
+  display:inline-block;margin-right:.32em;
   opacity:0;transform:translateY(.55em);filter:blur(10px);
   animation:chRise 1.15s cubic-bezier(.2,.7,.2,1) forwards;
   animation-delay:calc(.35s + var(--i)*.22s);
@@ -248,7 +251,7 @@ header .epigraph{
   gap:1rem;text-align:center;color:var(--moonpale);
   background:rgba(7,11,28,.55);border-radius:6px;
 }
-.sg-msg h3{font-family:var(--display);font-size:1.7rem;letter-spacing:.5em;text-indent:.5em;color:var(--starlight)}
+.sg-msg h3{font-family:var(--title);font-size:1.7rem;letter-spacing:.5em;text-indent:.5em;color:var(--starlight)}
 .sg-msg p{font-size:.86rem;line-height:2;color:var(--mistviolet);letter-spacing:.1em;padding:0 1rem}
 .sg-btn{
   font-family:var(--display);font-size:.95rem;letter-spacing:.35em;text-indent:.35em;
@@ -1071,10 +1074,11 @@ if(!reduced && 'IntersectionObserver' in window && mathSec){
   function checkTiers(){
     while(tierIdx < TIERS.length && score >= TIERS[tierIdx].s){
       const tier = TIERS[tierIdx];
-      banners.push({t:tier.t, sub:tier.sub || ('拾星 '+tier.s+' 枚'), life:1});
-      rings.push({x:player.x, y:player.y-8, r:10, life:1});
-      burst(player.x, player.y-8, 'rgba(232,196,107,.9)', 22);
-      if(tier.s >= HARD_AT && !hardMode){
+      const isHard = tier.s === HARD_AT;
+      banners.push({t:tier.t, sub:tier.sub || ('拾星 '+tier.s+' 枚'), life:1, hard:isHard});
+      rings.push({x:player.x, y:player.y-8, r:10, life:1, c:isHard ? '#c25e5e' : '#e8c46b'});
+      burst(player.x, player.y-8, isHard ? 'rgba(194,94,94,.9)' : 'rgba(232,196,107,.9)', 22);
+      if(isHard && !hardMode){
         hardMode = true;
         modeEl.textContent = '◆ 暗潮';
       }
@@ -1316,25 +1320,85 @@ if(!reduced && 'IntersectionObserver' in window && mathSec){
       gx.fillStyle = f.c;
       gx.fillText(f.t, f.x, f.y);
     }
-    /* 星阶光环:自弯月扩散开去 */
+    /* 星阶光环:双层,自弯月扩散开去 */
     for(const rg of rings){
-      gx.globalAlpha = Math.max(0, rg.life)*.8;
-      gx.strokeStyle = '#e8c46b'; gx.lineWidth = 1.5;
+      const ra = Math.max(0, rg.life);
+      gx.globalAlpha = ra*.8;
+      gx.strokeStyle = rg.c || '#e8c46b'; gx.lineWidth = 1.6;
       gx.beginPath(); gx.arc(rg.x, rg.y, rg.r, 0, Math.PI*2); gx.stroke();
+      gx.globalAlpha = ra*.4;
+      gx.lineWidth = .8;
+      gx.beginPath(); gx.arc(rg.x, rg.y, rg.r*.66, 0, Math.PI*2); gx.stroke();
     }
-    /* 星阶播报 */
+    /* 星阶播报:辉光底带 + 饰线星钻 + 缓缓上浮 */
     for(const b of banners){
-      const a = Math.max(0, Math.min(1, (1-b.life)*8, b.life*2.4));
-      const ry = GH*.30 - (1-b.life)*14;
+      const p = 1 - b.life;
+      const a = Math.max(0, Math.min(1, p*7, b.life*2.4));
+      const ry = GH*.30 - p*16;
+      const main = b.hard ? '#e0826f' : '#e8c46b';
+      const glow = b.hard ? 'rgba(194,94,94,.8)' : 'rgba(232,196,107,.75)';
+      const subC = b.hard ? '#c98a8a' : '#a99ee0';
+      const ease = 1 - Math.pow(1 - Math.min(1, p*5), 3);
+
+      gx.save();
       gx.globalAlpha = a;
-      gx.fillStyle = '#e8c46b';
-      gx.shadowColor = 'rgba(232,196,107,.7)'; gx.shadowBlur = 14;
-      gx.font = '22px "ZCOOL XiaoWei","Noto Serif SC",serif';
-      gx.fillText(b.t, GW/2, ry);
+      /* 辉光底带:横向压扁的柔光椭圆 */
+      const bw = GW*.32;
+      const band = gx.createRadialGradient(GW/2, ry-7, 0, GW/2, ry-7, bw);
+      band.addColorStop(0, b.hard ? 'rgba(194,94,94,.18)' : 'rgba(232,196,107,.15)');
+      band.addColorStop(1, 'rgba(0,0,0,0)');
+      gx.save();
+      gx.translate(GW/2, ry-7); gx.scale(1, .26); gx.translate(-GW/2, -(ry-7));
+      gx.fillStyle = band;
+      gx.fillRect(GW/2-bw, ry-7-bw, bw*2, bw*2);
+      gx.restore();
+
+      /* 标题:微缩放入场,字距拉开 */
+      const sc = .94 + .06*ease;
+      gx.save();
+      gx.translate(GW/2, ry); gx.scale(sc, sc);
+      gx.letterSpacing = '9px';
+      gx.textAlign = 'center';
+      gx.font = '24px "Ma Shan Zheng","ZCOOL XiaoWei","KaiTi",serif';
+      gx.fillStyle = main;
+      gx.shadowColor = glow; gx.shadowBlur = 16;
+      gx.fillText(b.t, -4, 0);
       gx.shadowBlur = 0;
-      gx.fillStyle = '#a99ee0';
+      gx.letterSpacing = '0px';
+
+      /* 两侧饰线:随入场向外展开,末端渐隐,内端缀星钻 */
+      const tw = gx.measureText(b.t).width/2 + 22;
+      const lw = GW*.2*ease;
+      for(const dir of [1,-1]){
+        const lg = gx.createLinearGradient(dir*tw, 0, dir*(tw+lw), 0);
+        lg.addColorStop(0, main);
+        lg.addColorStop(1, 'rgba(0,0,0,0)');
+        gx.strokeStyle = lg; gx.lineWidth = 1;
+        gx.beginPath(); gx.moveTo(dir*tw, -7); gx.lineTo(dir*(tw+lw), -7); gx.stroke();
+        drawStar(dir*tw, -7, 3, Math.PI/8, main, glow);
+      }
+      gx.restore();
+
+      /* 副题 */
+      gx.fillStyle = subC;
+      gx.letterSpacing = '3px';
       gx.font = '12px "Noto Serif SC",serif';
-      gx.fillText(b.sub, GW/2, ry+22);
+      gx.textAlign = 'center';
+      gx.fillText(b.sub, GW/2, ry+25);
+      gx.letterSpacing = '0px';
+      gx.restore();
+
+      /* 播报期间,底带四周升起细碎星屑 */
+      if(b.life > .3 && Math.random() < .3){
+        parts.push({
+          x: GW/2 + (Math.random()-.5)*GW*.42,
+          y: ry + Math.random()*12 - 20,
+          vx: (Math.random()-.5)*.3, vy: -(.4+Math.random()*.5),
+          r: Math.random()*1.4+.5,
+          c: b.hard ? 'rgba(194,94,94,.85)' : 'rgba(232,196,107,.85)',
+          life: .8
+        });
+      }
     }
     gx.globalAlpha = 1;
   }
