@@ -438,6 +438,67 @@ header .epigraph{
 }
 .scroll p{margin-top:.4rem;font-size:.92rem;color:rgba(240,237,226,.82)}
 
+/* ---------- 缮写室:可取阅的秘典 ---------- */
+.tomes{display:grid;gap:1.3rem}
+.tome{
+  display:flex;align-items:center;gap:1.4rem;
+  padding:1.3rem 1.6rem;
+  background:linear-gradient(160deg,rgba(28,20,64,.55),rgba(11,16,38,.85));
+  border:1px solid rgba(139,126,200,.25);
+  border-left:3px solid rgba(232,196,107,.5);
+  border-radius:4px;
+  color:var(--moonpale);text-decoration:none;
+  position:relative;overflow:hidden;
+  transition:transform .35s,border-color .35s,box-shadow .35s;
+}
+a.tome:hover,a.tome:focus-visible{
+  transform:translateY(-3px);
+  border-color:rgba(232,196,107,.55);
+  box-shadow:0 10px 32px rgba(0,0,0,.45),0 0 22px rgba(232,196,107,.12);
+}
+a.tome:focus-visible{outline:1px solid var(--starlight);outline-offset:3px}
+.tome-spine{
+  flex:0 0 3.2rem;height:3.2rem;
+  display:grid;place-items:center;
+  font-family:var(--latin);font-size:1.4rem;color:var(--starlight);
+  border:1px solid rgba(232,196,107,.45);border-radius:50%;
+  background:radial-gradient(circle at 38% 32%,rgba(232,196,107,.16),transparent 70%);
+  text-shadow:0 0 12px rgba(232,196,107,.5);
+}
+.tome-body{flex:1;min-width:0}
+.tome-body h3{
+  font-family:var(--display);font-weight:400;
+  font-size:1.08rem;letter-spacing:.12em;color:var(--starlight);
+}
+.tome-body p{margin-top:.3rem;font-size:.88rem;color:rgba(240,237,226,.8)}
+.tome-meta{
+  display:inline-block;margin-top:.45rem;
+  font-size:.75rem;letter-spacing:.16em;color:var(--mistviolet);
+}
+/* 火漆封印:悬停时融蜡发光 */
+.tome-seal{
+  flex:0 0 3.4rem;height:3.4rem;
+  display:grid;grid-auto-flow:column;place-content:center;gap:.1rem;
+  border-radius:50%;
+  font-family:var(--display);font-size:.9rem;letter-spacing:0;
+  color:#f4e2c0;
+  background:radial-gradient(circle at 36% 30%,#d4756a,#a14a44 55%,#7d342f);
+  box-shadow:inset 0 2px 5px rgba(255,255,255,.22),inset 0 -3px 7px rgba(0,0,0,.4),0 2px 9px rgba(0,0,0,.45);
+  transition:box-shadow .35s,transform .35s;
+}
+.tome-seal i{font-style:normal;writing-mode:vertical-rl;line-height:1.05}
+a.tome:hover .tome-seal,a.tome:focus-visible .tome-seal{
+  transform:rotate(-8deg) scale(1.06);
+  box-shadow:inset 0 2px 5px rgba(255,255,255,.25),inset 0 -3px 7px rgba(0,0,0,.4),0 0 18px rgba(212,117,106,.55);
+}
+.tome-empty{opacity:.55;border-left-style:dashed;border-left-color:rgba(139,126,200,.45)}
+.tome-empty .tome-spine{border-style:dashed;color:var(--mistviolet);text-shadow:none}
+.tome-empty h3{color:var(--mistviolet)}
+#archive code{
+  font-family:var(--latin);font-style:italic;
+  color:var(--starlight);padding:0 .25em;
+}
+
 /* ---------- 页脚 ---------- */
 footer{
   text-align:center;padding:4rem 1.5rem 3rem;
@@ -453,6 +514,9 @@ footer .latin{font-family:var(--latin);font-style:italic;letter-spacing:.15em}
 @media (max-width:600px){
   nav{gap:1.1rem;font-size:.82rem}
   .chapter::before{flex-basis:1.2rem}
+  .tome{gap:.9rem;padding:1.1rem 1rem}
+  .tome-spine{flex-basis:2.6rem;height:2.6rem;font-size:1.15rem}
+  .tome-seal{flex-basis:2.8rem;height:2.8rem;font-size:.8rem}
 }
 </style>
 </head>
@@ -467,6 +531,7 @@ footer .latin{font-family:var(--latin);font-style:italic;letter-spacing:.15em}
   <a href="#math">观星台</a>
   <a href="#photos">光影集</a>
   <a href="#diary">旅人手札</a>
+  <a href="#archive">缮写室</a>
 </nav>
 
 <header>
@@ -803,6 +868,32 @@ footer .latin{font-family:var(--latin);font-style:italic;letter-spacing:.15em}
   </div>
 </section>
 
+<!-- 缮写室 -->
+<section id="archive">
+  <h2 class="chapter">卷七 · 缮写室</h2>
+  <p class="chapter-sub">Scriptorium Arcanum — 亲手誊写的秘典，供同行的旅人取阅</p>
+  <div class="tomes">
+    <a class="tome" href="files/algebra-five-lectures.pdf" download>
+      <span class="tome-spine">𝑇ₙ</span>
+      <span class="tome-body">
+        <h3>联赛二试 · 代数进阶五讲</h3>
+        <p>Chebyshev 多项式 · 分式递推 · 代数整数 · 复数几何 · Vieta Jumping，五讲合卷，附全解。</p>
+        <span class="tome-meta">PDF 秘典 · 五讲全册</span>
+      </span>
+      <span class="tome-seal" aria-hidden="true"><i>取</i><i>阅</i></span>
+    </a>
+    <div class="tome tome-empty" aria-hidden="true">
+      <span class="tome-spine">✦</span>
+      <span class="tome-body">
+        <h3>下一卷 · 缮写中</h3>
+        <p>羽笔未停，烛火未熄。新的卷轴正在誊抄。</p>
+        <span class="tome-meta">Opus in fieri</span>
+      </span>
+    </div>
+  </div>
+  <p class="gallery-note">✦ 把 PDF 放入仓库 <code>files/</code> 目录并与上方链接同名，封印即告生效。</p>
+</section>
+
 </div>
 
 <footer>
@@ -1020,7 +1111,7 @@ if(!reduced && 'IntersectionObserver' in window){
     });
   }, {threshold:.15, rootMargin:'0px 0px -8% 0px'});
   document.querySelectorAll('section').forEach(sec => {
-    const items = sec.querySelectorAll('.chapter,.chapter-sub,.card,.rune-row,.frame,.scroll,.gallery-note');
+    const items = sec.querySelectorAll('.chapter,.chapter-sub,.card,.rune-row,.frame,.scroll,.tome,.gallery-note');
     items.forEach((el, i) => {
       el.classList.add('reveal');
       el.style.transitionDelay = Math.min(i*70, 420) + 'ms';
