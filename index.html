@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="星渊手札 · Violet 的个人星图——藏书、映像、游戏、数学与光影交织的私人星海。">
+<meta name="theme-color" content="#0b1026">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>星渊手札 · Violet 的个人星图</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +27,7 @@
   --latin:'Cormorant Garamond','Times New Roman',serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-tap-highlight-color:transparent}
 body{
   background:
     radial-gradient(1200px 800px at 78% -8%, rgba(139,126,200,.14), transparent 65%),
@@ -30,6 +35,7 @@ body{
     linear-gradient(180deg, #10153a 0%, var(--abyss) 42%, #070b1c 100%);
   background-attachment: fixed;
   color:var(--moonpale);
+  color-scheme:dark;
   font-family:var(--body);
   font-weight:300;
   line-height:1.9;
@@ -89,13 +95,20 @@ nav{
   letter-spacing:.25em;font-size:.95rem;
   flex-wrap:wrap;
 }
-nav a{color:var(--moonpale);text-decoration:none;opacity:.75;transition:.3s}
+nav a{position:relative;color:var(--moonpale);text-decoration:none;opacity:.75;transition:.3s}
 nav a:hover,nav a:focus-visible{opacity:1;color:var(--starlight)}
 nav a:focus-visible{outline:1px solid var(--starlight);outline-offset:4px}
+nav a.active{opacity:1;color:var(--starlight)}
+nav a.active::after{
+  content:"";position:absolute;left:50%;bottom:-.28rem;
+  transform:translateX(-50%);
+  width:4px;height:4px;border-radius:50%;
+  background:var(--starlight);box-shadow:0 0 7px var(--starlight);
+}
 
 /* ---------- 扉页 ---------- */
 header{
-  min-height:100vh;display:flex;flex-direction:column;
+  min-height:100vh;min-height:100svh;display:flex;flex-direction:column;
   justify-content:center;align-items:center;text-align:center;
   position:relative;z-index:1;padding:0 1.5rem;
 }
@@ -484,6 +497,7 @@ header .epigraph{
   border-radius:2px;padding:.05rem .5rem;margin:.15rem .3rem .15rem 0;
 }
 .card p{font-size:.92rem;color:rgba(240,237,226,.8)}
+.card.book:focus-visible{outline:1px solid var(--starlight);outline-offset:4px}
 
 /* ---------- 藏书阁 / 映像馆 / 秘境 ---------- */
 .cards.three{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
@@ -727,7 +741,17 @@ footer .latin{font-family:var(--latin);font-style:italic;letter-spacing:.15em}
   html{scroll-behavior:auto}
 }
 @media (max-width:600px){
-  nav{gap:1.1rem;font-size:.82rem}
+  nav{
+    gap:1.3rem;font-size:.82rem;
+    justify-content:flex-start;flex-wrap:nowrap;
+    overflow-x:auto;overflow-y:hidden;
+    padding:.7rem 1.1rem;
+    touch-action:pan-x;scrollbar-width:none;
+    overscroll-behavior-x:contain;
+  }
+  nav::-webkit-scrollbar{display:none}
+  nav a{flex:0 0 auto;white-space:nowrap}
+  section{padding:5rem 1.2rem 2.5rem}
   .chapter::before{flex-basis:1.2rem}
   .tome{gap:.9rem;padding:1.1rem 1rem}
   .tome-spine{flex-basis:2.6rem;height:2.6rem;font-size:1.15rem}
@@ -1162,10 +1186,12 @@ footer .latin{font-family:var(--latin);font-style:italic;letter-spacing:.15em}
 const expand = card => {
   const q = card.querySelector('.quotes');
   card.classList.add('open');
+  card.setAttribute('aria-expanded','true');
   q.style.maxHeight = q.scrollHeight + 'px';
 };
 const collapse = card => {
   const q = card.querySelector('.quotes');
+  card.setAttribute('aria-expanded','false');
   q.style.maxHeight = q.scrollHeight + 'px';   // 先钉住实际高度
   requestAnimationFrame(() => requestAnimationFrame(() => {
     card.classList.remove('open');
@@ -1173,16 +1199,23 @@ const collapse = card => {
   }));
 };
 document.querySelectorAll('.card.book').forEach(card => {
+  card.setAttribute('role','button');
+  card.tabIndex = 0;
+  card.setAttribute('aria-expanded','false');
   const q = card.querySelector('.quotes');
   q.addEventListener('transitionend', e => {
     if(e.propertyName === 'max-height' && card.classList.contains('open'))
       q.style.maxHeight = 'none';              // 展开完成后放开，适应换行变化
   });
-  card.addEventListener('click', () => {
+  const toggle = () => {
     const opening = !card.classList.contains('open');
     card.parentElement.querySelectorAll('.card.book.open')
       .forEach(c => { if(c !== card) collapse(c); });
     opening ? expand(card) : collapse(card);
+  };
+  card.addEventListener('click', toggle);
+  card.addEventListener('keydown', e => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
   });
 });
 
@@ -1320,10 +1353,16 @@ function draw(t){
     }
   }
 
-  if(!reduced) requestAnimationFrame(draw);
+  if(!reduced && !document.hidden) skyId = requestAnimationFrame(draw);
+  else skyId = 0;
 }
+let skyId = 0;
 draw(0);
-if(reduced){ draw(0); }
+if(!reduced){
+  document.addEventListener('visibilitychange', () => {
+    if(!document.hidden && !skyId){ lastT = 0; skyId = requestAnimationFrame(draw); }
+  });
+}
 
 /* ====== 扉页:标题逐字浮现 ====== */
 const h1 = document.querySelector('header h1');
@@ -1356,6 +1395,35 @@ if(!reduced && 'IntersectionObserver' in window){
     });
   });
 }
+
+/* ====== 导航：滚动时高亮当前篇章 ====== */
+(() => {
+  const nav = document.querySelector('nav');
+  if(!nav || !('IntersectionObserver' in window)) return;
+  const links = [...nav.querySelectorAll('a')];
+  const sections = [...document.querySelectorAll('section[id]')];
+  if(!sections.length) return;
+  const linkFor = id => links.find(a => a.getAttribute('href') === '#' + id);
+  let activeId = null;
+  const setActive = id => {
+    if(id === activeId) return;
+    activeId = id;
+    links.forEach(a => {
+      const on = a.getAttribute('href') === '#' + id;
+      a.classList.toggle('active', on);
+      on ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current');
+    });
+    const link = linkFor(id);
+    if(link && nav.scrollWidth > nav.clientWidth + 4){   // 仅在导航可横向滚动时(移动端)
+      const target = link.offsetLeft - nav.clientWidth/2 + link.clientWidth/2;
+      nav.scrollTo({left: Math.max(0, target), behavior: reduced ? 'auto' : 'smooth'});
+    }
+  };
+  const spy = new IntersectionObserver(es => {
+    es.forEach(e => { if(e.isIntersecting) setActive(e.target.id); });
+  }, {rootMargin: '-42% 0px -52% 0px', threshold: 0});
+  sections.forEach(s => spy.observe(s));
+})();
 
 /* ====== 观星台:进度条入场点亮 ====== */
 const lightOrbits = () =>
